@@ -25,16 +25,21 @@ function* updateAccount({ payload: account }: UpdateAccountAction) {
 
         bestMatch = devices.find(d => d.status === 'AWAKE' && d.type === account.activity.launchPlatform);
         if (bestMatch !== undefined) {
-            // if there already is an activity on that device add the player to the active player list
-            if (bestMatch.activity !== undefined && !bestMatch.activity.activePlayers.includes(account.accountName)) {
-                bestMatch.activity.activePlayers.push(account.accountName);
-            }
-            // otherwise add activity to matched device
-            else {
+            if (bestMatch.activity) {
+                if (!bestMatch.activity.activePlayers) {
+                    bestMatch.activity.activePlayers = [];
+                }
+
+                // Add the account to activePlayers if not already present
+                if (!bestMatch.activity.activePlayers.includes(account.accountName)) {
+                    bestMatch.activity.activePlayers.push(account.accountName);
+                }
+            } else {
+                // Create a new activity object if none exists
                 bestMatch.activity = {
                     ...account.activity,
                     activePlayers: [account.accountName]
-                }
+                };
             }
         }
     }
